@@ -1,0 +1,40 @@
+bundle:
+  name: lab7-CI-CD
+
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://adb-7405605185991044.4.azuredatabricks.net
+      root_path: /Users/farynaarseniy2007@softserve.academy/dev
+    
+  test:
+    mode: production
+    workspace:
+      host: https://adb-7405605185991044.4.azuredatabricks.net
+      root_path: /Users/farynaarseniy2007@softserve.academy/test
+      
+resources:
+  notebooks:
+    apply_rls_and_cls:
+      source_path: ./Row_and_column_level_security/Apply_rls_and_cls
+    
+    gold_layer:
+      source_path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
+
+    utils:
+      source_path: ./Lab6_faryna_gold_layer/utilities/utils.py
+
+  jobs:
+    lab7_pipeline:
+      name: lab7-gold-layer-job
+      tasks:
+        - task_key:
+          notebook_task:
+            notebook_path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
+
+        - task_key: gold_layer
+          notebook_task: 
+            notebook: ./Row_and_column_level_security/Apply_rls_and_cls
+
+  
