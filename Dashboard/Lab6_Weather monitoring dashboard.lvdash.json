@@ -1,0 +1,348 @@
+{
+  "datasets": [
+    {
+      "name": "48002046",
+      "displayName": "agg_weather_weekly",
+      "queryLines": [
+        "SELECT week_start, min_temperature, avg_temperature, max_temperature\r\n",
+        "FROM dbr_dev.faryna_gold.agg_weather_weekly\r\n",
+        "ORDER BY week_start;"
+      ],
+      "catalog": "dbr_dev",
+      "schema": "faryna_gold"
+    },
+    {
+      "name": "ff4c0e65",
+      "displayName": "agg_weather_daily",
+      "queryLines": [
+        "SELECT \r\n",
+        "  load_date,\r\n",
+        "  avg_temperature,\r\n",
+        "  min_temperature,\r\n",
+        "  max_temperature,\r\n",
+        "  avg_humidity,\r\n",
+        "  total_rain,\r\n",
+        "  total_snowfall,\r\n",
+        "  avg_wind_speed,\r\n",
+        "  CASE \r\n",
+        "    WHEN total_rain > 0 THEN 'Rainy'\r\n",
+        "    WHEN avg_humidity > 80 THEN 'Humid'\r\n",
+        "    ELSE 'Normal'\r\n",
+        "  END AS weather_type\r\n",
+        "FROM dbr_dev.faryna_gold.agg_weather_daily\r\n",
+        "ORDER BY load_date"
+      ],
+      "catalog": "dbr_dev",
+      "schema": "faryna_gold"
+    }
+  ],
+  "pages": [
+    {
+      "name": "e114625f",
+      "displayName": "Temperature among two weeks (min, max, avg)",
+      "layout": [
+        {
+          "widget": {
+            "name": "change-temperature-min-max-avg-week",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "48002046",
+                  "fields": [
+                    {
+                      "name": "weekly(week_start)",
+                      "expression": "DATE_TRUNC(\"WEEK\", `week_start`)"
+                    },
+                    {
+                      "name": "avg(avg_temperature)",
+                      "expression": "AVG(`avg_temperature`)"
+                    },
+                    {
+                      "name": "max(max_temperature)",
+                      "expression": "MAX(`max_temperature`)"
+                    },
+                    {
+                      "name": "min(min_temperature)",
+                      "expression": "MIN(`min_temperature`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "                                                       Change of temperature (min, max, avg) by week"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "weekly(week_start)",
+                  "displayName": "weeks",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "avg(avg_temperature)",
+                      "displayName": "Avg temperature weekly"
+                    },
+                    {
+                      "fieldName": "max(max_temperature)",
+                      "displayName": "max temperature weekly"
+                    },
+                    {
+                      "fieldName": "min(min_temperature)",
+                      "displayName": "min temperature weekly"
+                    }
+                  ],
+                  "axis": {
+                    "title": "Temperature (celsius)",
+                    "hideLabels": false,
+                    "hideGrid": false
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "b806a988",
+      "displayName": "Charts",
+      "layout": [
+        {
+          "widget": {
+            "name": "rain-chart",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ff4c0e65",
+                  "fields": [
+                    {
+                      "name": "load_date",
+                      "expression": "`load_date`"
+                    },
+                    {
+                      "name": "total_rain",
+                      "expression": "`total_rain`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Rain chart"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "load_date",
+                  "displayName": "Day of week",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_rain",
+                  "displayName": "Total rain",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "humidity-chart",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ff4c0e65",
+                  "fields": [
+                    {
+                      "name": "load_date",
+                      "expression": "`load_date`"
+                    },
+                    {
+                      "name": "avg_humidity",
+                      "expression": "`avg_humidity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Humidity chart"
+              },
+              "widgetType": "area",
+              "encodings": {
+                "x": {
+                  "fieldName": "load_date",
+                  "displayName": "Day of week",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg_humidity",
+                  "displayName": "Average humidity",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 7,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "402d45bf",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ff4c0e65",
+                  "fields": [
+                    {
+                      "name": "load_date",
+                      "expression": "`load_date`"
+                    },
+                    {
+                      "name": "avg_wind_speed",
+                      "expression": "`avg_wind_speed`"
+                    },
+                    {
+                      "name": "avg_temperature",
+                      "expression": "`avg_temperature`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "combo",
+              "encodings": {
+                "x": {
+                  "fieldName": "load_date",
+                  "displayName": "Day of week",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "avg_wind_speed",
+                        "displayName": "Average wind speed"
+                      }
+                    ]
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "avg_temperature",
+                        "displayName": "Average temperature"
+                      }
+                    ]
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 10,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "0cbc0205",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "ed9f30c5",
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-single-select",
+              "encodings": {},
+              "frame": {
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
