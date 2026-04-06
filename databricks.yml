@@ -20,6 +20,10 @@ resources:
       name: lab7-gold-layer-pipeline
       catalog: dbr_dev
       target: faryna_gold
+      clusters:
+        - label: default
+          node_type_id: Standard_F4
+          num_workers: 1
       libraries:
         - file:
             path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
@@ -27,13 +31,21 @@ resources:
   jobs:
     lab7_pipeline:
       name: lab7-gold-layer-job
+      job_clusters:
+        - job_cluster_key: small_cluster
+          new_cluster:
+            spark_version: 15.4.x-scala2.12
+            node_type_id: Standard_F4
+            num_workers: 1
       tasks:
         - task_key: run_gold_layer_pipeline
           pipeline_task:
             pipeline_id: ${resources.pipelines.gold_layer_pipeline.id}
 
         - task_key: apply_rls_cls
+          job_cluster_key: small_cluster
           depends_on:
             - task_key: run_gold_layer_pipeline
           notebook_task:
             notebook_path: ./Row_and_column_level_security/Apply_rls_and_cls.ipynb
+            
