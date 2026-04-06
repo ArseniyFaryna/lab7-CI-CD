@@ -1,0 +1,85 @@
+name: Deploy Databricks Bundle
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Target environment to deploy"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - test
+
+env:
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+
+jobs:
+  # ── Stage 1: Validate bundle on every PR ──
+  validate:
+    name: Validate Bundle
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle (dev)
+        run: databricks bundle validate --target dev
+
+      - name: Validate bundle (test)
+        run: databricks bundle validate --target test
+
+  # ── Stage 2: Deploy to DEV on push to main ──
+  deploy-dev:
+    name: Deploy to DEV
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle
+        run: databricks bundle validate --target dev
+
+      - name: Deploy to DEV
+        run: databricks bundle deploy --target dev
+
+      - name: Run pipeline job on DEV
+        run: databricks bundle run lab7_pipeline --target dev
+
+  # ── Stage 3: Deploy to TEST (manual trigger only) ──
+  deploy-test:
+    name: Deploy to TEST
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment == 'test'
+    needs: []
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle
+        run: databricks bundle validate --target test
+
+      - name: Deploy to TEST
+        run: databricks bundle deploy --target test
+
+      - name: Run pipeline job on TEST
+        run: databricks bundle run lab7_pipeline --target test
