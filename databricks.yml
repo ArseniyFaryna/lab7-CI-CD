@@ -48,3 +48,4 @@ resources:
             - task_key: run_gold_layer_pipeline
           notebook_task:
             notebook_path: ./Row_and_column_level_security/Apply_rls_and_cls.ipynb
+            
