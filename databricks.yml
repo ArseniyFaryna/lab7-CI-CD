@@ -15,26 +15,25 @@ targets:
       root_path: /Users/farynaarseniy2007@softserve.academy/test
       
 resources:
-  notebooks:
-    apply_rls_and_cls:
-      source_path: ./Row_and_column_level_security/Apply_rls_and_cls
-    
-    gold_layer:
-      source_path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
-
-    utils:
-      source_path: ./Lab6_faryna_gold_layer/utilities/utils.py
+  pipelines:
+    gold_layer_pipeline:
+      name: lab7-gold-layer-pipeline
+      catalog: dbr_dev
+      target: faryna_gold
+      libraries:
+        - file:
+            path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
 
   jobs:
     lab7_pipeline:
       name: lab7-gold-layer-job
       tasks:
-        - task_key:
+        - task_key: run_gold_layer_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.gold_layer_pipeline.id}
+
+        - task_key: apply_rls_cls
+          depends_on:
+            - task_key: run_gold_layer_pipeline
           notebook_task:
-            notebook_path: ./Lab6_faryna_gold_layer/transformations/gold_layer.py
-
-        - task_key: gold_layer
-          notebook_task: 
-            notebook: ./Row_and_column_level_security/Apply_rls_and_cls
-
-  
+            notebook_path: ./Row_and_column_level_security/Apply_rls_and_cls.ipynb
