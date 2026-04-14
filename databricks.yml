@@ -5,14 +5,12 @@ targets:
   dev:
     mode: development
     workspace:
-      host: https://adb-7405605185991044.4.azuredatabricks.net
-      root_path: /Users/farynaarseniy2007@softserve.academy/dev
+      root_path: /Users/${workspace.current_user.userName}/dev
     
   test:
     mode: production
     workspace:
-      host: https://adb-7405605185991044.4.azuredatabricks.net
-      root_path: /Users/farynaarseniy2007@softserve.academy/test
+      root_path: /Users/${workspace.current_user.userName}/test
       
 resources:
   pipelines:
@@ -47,4 +45,4 @@ resources:
           depends_on:
             - task_key: run_gold_layer_pipeline
           notebook_task:
-            notebook_path: ./Row_and_column_level_security/Apply_rls_and_cls.ipynb
+            notebook_path: ./Row_and_column_level_security/Apply_rls_and_cls.py
